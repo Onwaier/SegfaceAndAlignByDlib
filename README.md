@@ -8,9 +8,11 @@
 ## 关键点检测
 首先获取模型，下载地址在[这](http://dlib.net/files/)，我使用的是获取脸部68个关键点的[模型`shape_predictor_68_face_landmarks.dat`](http://onwaier.com:7777/share/e9FOpQTO)
 68关键点位置示意图如下：
+
 ![](http://onwaier.com/wp-content/uploads/2020/01/bc388216b03bc751c8a6505207243e59.png)
 
 首先贴出python代码
+
 ```python
 """
 代码功能：
@@ -56,6 +58,7 @@ for i in range(len(rects)):
 file_handle.close()
 cv2.imwrite("output/Messi_keypoints.png", img)
 ```
+
 大致过程如下：先用人脸检测器获取到人脸矩形框rectangles，再用68点shape模型获取`full_object_detection`对象。最后将关键点标记出来，并写入文本中。
 
 `rects = detector(img_gray, 0)`返回的是人脸的`bounding box`，多张人脸可能对应有多个。
@@ -70,6 +73,7 @@ predictor返回的是一个`full_object_detection`对象，通过`parts()`可以
 ![](http://onwaier.com/wp-content/uploads/2020/01/0b76bab4c8876e791592ab1ba4bfb760.png)
 
 测试图片的原图与标注关键点后图片如下图所示。
+
 ![](http://onwaier.com/wp-content/uploads/2020/01/63d16c7784509d2f8880da7e92b37d9c.png)
 
 ![](http://onwaier.com/wp-content/uploads/2020/01/a8fc125fa7af4ec67798e3ba6ee2290e.png)
@@ -113,6 +117,7 @@ for image in face_images:
 Dlib检测出的脸部区域对于下巴和额头区域会做过多的裁剪，并且分割使用的是矩形框。
 
 分割结果如图
+
 ![](http://onwaier.com/wp-content/uploads/2020/01/41bcb607dddb2e1b274cfa79516723c8.png)
 
 ### 不规则形状分割人脸
@@ -178,6 +183,7 @@ def get_image_hull_mask(image_shape, image_landmarks, ie_polys=None):
 方法利用的就是opencv的convexhull得到凸包然后就可以抠出人脸区域。
 
 得到掩模，这里使用两种方式来得到人脸区域
+
 1. 将mask作为$\alpha$通道，来控制图片区域的透明度，最后得到图片是4通道的
 ```python
 def merge_add_alpha(img_1, mask):
@@ -192,10 +198,12 @@ def merge_add_alpha(img_1, mask):
     return img_BGRA
 ```
 
-分割结果
+分割结果为
+
 ![](http://onwaier.com/wp-content/uploads/2020/01/fac8463e6dfcc01af5f1f95560df7787.png)
 
 2. 掩模与原始图像进行与运算，返回图像是三通道。
+
 ```python
 def merge_add_mask(img_1, mask):
     if mask is not None:
@@ -220,11 +228,15 @@ def merge_add_mask(img_1, mask):
     return res_img
 
 ```
+
 分割结果为
+
 ![](http://onwaier.com/wp-content/uploads/2020/01/1f008f4ffc9f58946de4579a8e71e2fd.png)
 
 ## 人脸对齐
+
 思路比较简单，计算两眼连线与水平线的夹角，然后通过角度得到对应的旋转矩阵。对图片进行相应的变换。
+
 ```python
 def single_face_alignment(face, landmarks):
     eye_center = ((landmarks[36, 0] + landmarks[45, 0]) * 1. / 2,  # 计算两眼的中心坐标
@@ -237,7 +249,9 @@ def single_face_alignment(face, landmarks):
     align_face = cv2.warpAffine(face, RotateMatrix, (face.shape[0], face.shape[1]))  # 进行放射变换，即旋转
     return align_face
 ```
+
 人脸对齐后如图
+
 ![](http://onwaier.com/wp-content/uploads/2020/01/d371e91bffc8b8158b282a0d5115bc00.png)
 
 这样就完成人脸检测-->人脸关键点检测-->人脸分割-->人脸对齐。
