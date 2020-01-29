@@ -257,4 +257,5 @@ def single_face_alignment(face, landmarks):
 这样就完成人脸检测-->人脸关键点检测-->人脸分割-->人脸对齐。
 
 可以用以上方法对fer2013数据集进行预处理，如图所示。
+
 ![](http://onwaier.com/wp-content/uploads/2020/01/9b242c562a1fb5a0b059ae1bf4218aa6.png)
